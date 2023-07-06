@@ -1,17 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../models/product_model.dart';
+
 FirebaseFirestore database = FirebaseFirestore.instance;
+CollectionReference collectionReferenceData = database.collection('product');
 
 Future<List> getProduct() async {
-  List data = [];
+	List data = [];
 
-  CollectionReference collectionReferenceData = database.collection('producto');
+	QuerySnapshot queryData = await collectionReferenceData.get();
 
-  QuerySnapshot queryData = await collectionReferenceData.get();
-  
-  queryData.docs.forEach((element) {
-    data.add(element.data());
-  });
+	queryData.docs.forEach((element) {
+		data.add(element.data());
+	});
 
-  return data;
+	return data;
+}
+
+Future<void> addProduct(Product newElement) async {
+	Map<String, dynamic> elementData = newElement.toJson();
+	await collectionReferenceData.add(elementData);
 }
