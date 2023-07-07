@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 //importaciones de firebase
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_notifications/pages/product/add_product.dart';
-import 'package:flutter_notifications/services/firebase_service.dart';
-import 'firebase_options.dart';
-
+import 'package:flutter_notifications/pages/product/update_product.dart';
+import 'services/firebase_options.dart';
 
 import 'package:flutter_notifications/pages/home/home_page.dart';
 import 'package:flutter_notifications/services/notifications_services.dart';
@@ -35,6 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const Home(),
         '/add-product': (context) => const AddProductPage(),
+        '/update-product': (context) => const UpdateProductPage(),
       },
     );
   }

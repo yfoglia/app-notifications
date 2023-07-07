@@ -38,24 +38,24 @@ class _AddProductPageState extends State<AddProductPage> {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    String name = nameController.text;
-                    String code = codeController.text;
-                    DateTime expirationDate = DateTime
-                        .now(); // Asigna aquí la fecha de expiración correcta
-
-                    Product newProduct = Product(
-                      name: name,
-                      code: code,
-                      expirationDate: expirationDate,
-                    );
-					
-                    await addProduct(newProduct).then((_) {
-                      Navigator.pop(context);
-                    });
+                    await addProductEvent(
+                        nameController.text, codeController.text, context);
                   },
                   child: const Text('Guardar'))
             ],
           ),
         ));
   }
+}
+
+Future<void> addProductEvent(String name, String code, BuildContext context) async {
+	Product newProduct = Product(
+		name: name,
+		code: code,
+		expirationDate: DateTime.now(),
+	);
+
+	await addProduct(newProduct).then((_) {
+		Navigator.pop(context);
+	});
 }

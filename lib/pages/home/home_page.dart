@@ -38,11 +38,16 @@ class _HomeState extends State<Home> {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InkWell(
-                      onTap: () {
-                        // Handle the card click event here
+                      onTap: () async {
+                        await Navigator.pushNamed(context, '/update-product',
+                            arguments: {
+                              "data-firebase": snapshot.data?[index]
+                            });
+                        // Para actualizar el widget
+                        setState(() {});
                       },
                       child: Card(
-                        color: Color.fromARGB(8, 0, 0, 0),
+                        color: const Color.fromARGB(17, 12, 12, 12),
                         child: ListTile(
                           title: Text(
                             name,
