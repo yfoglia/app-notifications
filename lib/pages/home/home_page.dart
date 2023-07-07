@@ -10,6 +10,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool _isModalVisible = false;
+  int _selectedProductIndex = -1;
+  List<Map<String, dynamic>> _productData = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,17 +24,16 @@ class _HomeState extends State<Home> {
         future: getProduct(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            _productData = List<Map<String, dynamic>>.from(snapshot.data ?? []);
             return Padding(
               padding: const EdgeInsets.all(10.0),
               child: ListView.builder(
-                itemCount: snapshot.data?.length,
+                itemCount: _productData.length,
                 itemBuilder: (context, index) {
-                  Map<String, dynamic> productData = snapshot.data?[index];
-
-                  String name = productData['name'];
-                  String code = productData['code'];
+                  String name = _productData[index]['name'];
+                  String code = _productData[index]['code'];
                   DateTime expirationDate =
-                      DateTime.parse(productData['expirationDate']);
+                      DateTime.parse(_productData[index]['expirationDate']);
 
                   String formattedDate =
                       DateFormat('dd/MM/yyyy').format(expirationDate);
@@ -41,13 +44,12 @@ class _HomeState extends State<Home> {
                       onTap: () async {
                         await Navigator.pushNamed(context, '/update-product',
                             arguments: {
-                              "data-firebase": snapshot.data?[index]
+                              "data-firebase": _productData[index]
                             });
-                        // Para actualizar el widget
                         setState(() {});
                       },
                       child: Card(
-                        color: const Color.fromARGB(17, 12, 12, 12),
+                        color: Theme.of(context).cardColor,
                         child: ListTile(
                           title: Text(
                             name,
@@ -73,6 +75,16 @@ class _HomeState extends State<Home> {
                               ),
                             ],
                           ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_forever_rounded),
+                            color: const Color.fromARGB(255, 210, 96, 96),
+                            onPressed: () {
+                              setState(() {
+                                _selectedProductIndex = index;
+                                _isModalVisible = true;
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -87,20 +99,98 @@ class _HomeState extends State<Home> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.pushNamed(context, '/add-product');
-          // Para actualizar el widget
-          setState(() {});
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: !_isModalVisible
+          ? FloatingActionButton(
+              onPressed: () async {
+                await Navigator.pushNamed(context, '/add-product');
+                setState(() {});
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      bottomSheet: _buildModal(),
     );
   }
+
+  Widget _buildModal() {
+    if (_isModalVisible) {
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            _isModalVisible = false;
+          });
+        },
+        child: Container(
+          color: Colors.black54,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        'Confirmar borrado',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        '¿Estás seguro de que deseas borrar este elemento?',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isModalVisible = false;
+                            });
+                            deleteProduct(_productData[_selectedProductIndex]['firebaseId']);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          child: const Text('Borrar'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isModalVisible = false;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                          ),
+                          child: const Text('Cancelar'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
 }
-
-
-
 
 // Center(
       //   child: ElevatedButton(

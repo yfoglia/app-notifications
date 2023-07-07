@@ -36,3 +36,7 @@ Future<void> updateProduct(String idFirebase, Product newElement) async {
 	Map<String, dynamic> elementData = newElement.toJson();
 	await collectionReferenceData.doc(idFirebase).set(elementData);
 }
+
+Future<void> deleteProduct(String idFirebase) async {
+	await collectionReferenceData.doc(idFirebase).delete();
+}

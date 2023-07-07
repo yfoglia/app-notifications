@@ -20,8 +20,6 @@ Future<void> initNotifications() async {
 }
 
 Future<void> mostrarNotificacion() async {
-  print("init notification");
-
   const AndroidNotificationDetails androidNotificationDetails = 
     AndroidNotificationDetails('channelId', 'channelName');
   
