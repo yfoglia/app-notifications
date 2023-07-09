@@ -2,6 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_notifications/colors/color_extensions.dart';
 import 'package:flutter_notifications/pages/product/add_product.dart';
+import 'package:flutter_notifications/pages/product/list_product.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -34,11 +35,8 @@ class HomeState extends State<Home> {
       body: IndexedStack(
         index: _page,
         children: [
-          Container(
-            color: ColorExtensions.dark,
-            child: const Center(
-              child: Text('Vista 1'),
-            ),
+          const Center(
+            child: ListProductPage(),
           ),
           const Center(
             child: AddProductPage(),
