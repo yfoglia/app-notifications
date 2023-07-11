@@ -108,8 +108,10 @@ class _ListProductPageState extends State<ListProductPage> {
             ),
           );
         } else {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Center(
+            child: CircularProgressIndicator(
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(ColorExtensions.orangeMenu)),
           );
         }
       },
@@ -138,46 +140,45 @@ class _ListProductPageState extends State<ListProductPage> {
     }
   }
 
- Widget _buildModalUpdate() {
-  if (_isModalUpdateVisible) {
-    String firebaseId = _productData[_selectedProductIndex]['firebaseId'];
-    String initialName = _productData[_selectedProductIndex]['name'];
-    String initialCode = _productData[_selectedProductIndex]['code'];
-    DateTime initialDate = DateTime.parse(_productData[_selectedProductIndex]['expirationDate']);
+  Widget _buildModalUpdate() {
+    if (_isModalUpdateVisible) {
+      String firebaseId = _productData[_selectedProductIndex]['firebaseId'];
+      String initialName = _productData[_selectedProductIndex]['name'];
+      String initialCode = _productData[_selectedProductIndex]['code'];
+      DateTime initialDate =
+          DateTime.parse(_productData[_selectedProductIndex]['expirationDate']);
 
-    return WillPopScope(
-      onWillPop: () async {
-        setState(() {
-          _isModalUpdateVisible = false;
-        });
-        return true;
-      },
-      child: ModalUpdateWidget(
-        firebaseId: firebaseId,
-        initialName: initialName,
-        initialCode: initialCode,
-        initialDate: initialDate,
-        onUpdate: (String firebaseId, String name, String code, DateTime selectedDate, BuildContext context) async {
-          Product newProduct = Product(
-            name: name,
-            code: code,
-            expirationDate: selectedDate,
-          );
-
-          await updateProduct(firebaseId, newProduct).then((_) {
-          });
-        },
-        onClose: () {
+      return WillPopScope(
+        onWillPop: () async {
           setState(() {
             _isModalUpdateVisible = false;
           });
+          return true;
         },
-      ),
-    );
-  } else {
-    return const SizedBox.shrink();
+        child: ModalUpdateWidget(
+          firebaseId: firebaseId,
+          initialName: initialName,
+          initialCode: initialCode,
+          initialDate: initialDate,
+          onUpdate: (String firebaseId, String name, String code,
+              DateTime selectedDate, BuildContext context) async {
+            Product newProduct = Product(
+              name: name,
+              code: code,
+              expirationDate: selectedDate,
+            );
+
+            await updateProduct(firebaseId, newProduct).then((_) {});
+          },
+          onClose: () {
+            setState(() {
+              _isModalUpdateVisible = false;
+            });
+          },
+        ),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
-}
-
-
 }

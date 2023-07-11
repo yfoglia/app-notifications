@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_notifications/colors/color_extensions.dart';
+import 'package:flutter_notifications/pages/home/home_page.dart';
 import 'package:flutter_notifications/services/firebase_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart'; // Importar el paquete intl para formatear la fecha
 
 import '../../models/product_model.dart';
@@ -17,6 +19,7 @@ class _AddProductPageState extends State<AddProductPage> {
   TextEditingController codeController = TextEditingController(text: "");
   TextEditingController dateController = TextEditingController();
   DateTime? selectedDate;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -34,7 +37,8 @@ class _AddProductPageState extends State<AddProductPage> {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: const ColorScheme.light().copyWith(
-              primary: ColorExtensions.orangeMenu, // Cambia el color del selector de fecha
+              primary: ColorExtensions
+                  .orangeMenu, // Cambia el color del selector de fecha
             ),
           ),
           child: child!,
@@ -68,8 +72,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
                 child: TextField(
                   controller: nameController,
-                  style: TextStyle(
-                      color: ColorExtensions.inputText),
+                  style: TextStyle(color: ColorExtensions.inputText),
                   decoration: const InputDecoration(
                     hintText: 'Ingresar nombre',
                     border: InputBorder.none,
@@ -85,8 +88,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
                 child: TextField(
                   controller: codeController,
-                  style: TextStyle(
-                      color: ColorExtensions.inputText),
+                  style: TextStyle(color: ColorExtensions.inputText),
                   decoration: const InputDecoration(
                     hintText: 'Ingresar código',
                     border: InputBorder.none,
@@ -124,57 +126,86 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  await addProductEvent(nameController.text,
-                      codeController.text, selectedDate, context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorExtensions
-                      .orangeMenu, // Cambia el color del botón de guardar
+              IgnorePointer(
+                ignoring: isLoading,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await addProductEvent(nameController.text, codeController.text, selectedDate, context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: isLoading ? Colors.grey : ColorExtensions.orangeMenu,
+                    textStyle: TextStyle(color: isLoading ? Colors.black54 : ColorExtensions.dark),
+                  ),
+                  child: Text('Agregar'),
                 ),
-                child: Text('Agregar',
-                    style: TextStyle(color: ColorExtensions.dark)),
               ),
+              if (isLoading)
+                Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(ColorExtensions.orangeMenu),
+                    ),
+                  ),
+                )
             ],
           ),
         ),
       ),
     );
   }
-}
 
-Future<void> addProductEvent(String name, String code, DateTime? selectedDate,
-    BuildContext context) async {
-  if (selectedDate == null) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Fecha no seleccionada'),
-          content:
-              const Text('Por favor, seleccione una fecha antes de guardar.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cerrar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+  Future<void> addProductEvent(String name, String code, DateTime? selectedDate, BuildContext context) async {
+    if (selectedDate == null) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Fecha no seleccionada'),
+            content: const Text('Por favor, seleccione una fecha antes de guardar.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cerrar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    Product newProduct = Product(
+      name: name,
+      code: code,
+      expirationDate: selectedDate,
     );
-    return;
+
+    await addProduct(newProduct).then((_) {
+      // Producto agregado exitosamente
+      Fluttertoast.showToast(
+        msg: 'Producto agregado',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.black87,
+        textColor: Colors.white,
+      );
+
+      setState(() {
+        isLoading = false;
+      });
+
+      // Redirigir al usuario al Home
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Home()),
+        (Route<dynamic> route) => false,
+      );
+    });
   }
-
-  Product newProduct = Product(
-    name: name,
-    code: code,
-    expirationDate: selectedDate,
-  );
-
-  await addProduct(newProduct).then((_) {
-    
-  });
 }
