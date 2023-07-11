@@ -6,12 +6,13 @@ class ModalDeleteWidget extends StatefulWidget {
   final Function onCancel;
   final Function onConfirm;
 
-  const ModalDeleteWidget({
+  const ModalDeleteWidget({super.key, 
     required this.onCancel,
     required this.onConfirm,
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ModalDeleteWidgetState createState() => _ModalDeleteWidgetState();
 }
 

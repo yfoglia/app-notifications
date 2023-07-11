@@ -133,10 +133,10 @@ class _AddProductPageState extends State<AddProductPage> {
                     await addProductEvent(nameController.text, codeController.text, selectedDate, context);
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: isLoading ? Colors.grey : ColorExtensions.orangeMenu,
+                    backgroundColor: isLoading ? Colors.grey : ColorExtensions.orangeMenu,
                     textStyle: TextStyle(color: isLoading ? Colors.black54 : ColorExtensions.dark),
                   ),
-                  child: Text('Agregar'),
+                  child: const Text('Agregar'),
                 ),
               ),
               if (isLoading)
@@ -203,7 +203,7 @@ class _AddProductPageState extends State<AddProductPage> {
 
       // Redirigir al usuario al Home
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => Home()),
+        MaterialPageRoute(builder: (context) => const Home()),
         (Route<dynamic> route) => false,
       );
     });

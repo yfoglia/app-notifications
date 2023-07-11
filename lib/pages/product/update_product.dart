@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_notifications/colors/color_extensions.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -96,7 +98,7 @@ class _ModalUpdateWidgetState extends State<ModalUpdateWidget> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: ColorExtensions.dark,
-      content: Container(
+      content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.95,
         child: SingleChildScrollView(
           child: Column(
