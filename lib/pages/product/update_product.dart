@@ -1,85 +1,205 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_notifications/services/firebase_service.dart';
+import 'package:flutter_notifications/colors/color_extensions.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
-import '../../models/product_model.dart';
+class ModalUpdateWidget extends StatefulWidget {
+  final String firebaseId;
+  final String initialName;
+  final String initialCode;
+  final DateTime initialDate;
+  final Function onUpdate;
+  final Function onClose;
 
-class UpdateProductPage extends StatefulWidget {
-  const UpdateProductPage({super.key});
+  const ModalUpdateWidget({
+    super.key,
+    required this.firebaseId,
+    required this.initialName,
+    required this.initialCode,
+    required this.initialDate,
+    required this.onUpdate,
+    required this.onClose,
+  });
 
   @override
-  State<UpdateProductPage> createState() => _UpdateProductPageState();
+  _ModalUpdateWidgetState createState() => _ModalUpdateWidgetState();
 }
 
-class _UpdateProductPageState extends State<UpdateProductPage> {
-  TextEditingController nameController = TextEditingController(text: "");
-  TextEditingController codeController = TextEditingController(text: "");
-  String firebaseId = '';
-  bool isUpdating = false;
+class _ModalUpdateWidgetState extends State<ModalUpdateWidget> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController codeController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  DateTime? selectedDate;
+  bool _isUpdating = false;
+  DateTime firstDate = DateTime.now();
+  
+  @override
+  void initState() {
+    super.initState();
+    nameController.text = widget.initialName;
+    codeController.text = widget.initialCode;
+    dateController.text = DateFormat('dd/MM/yyyy').format(widget.initialDate);
+    selectedDate = widget.initialDate;
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate:
+          DateTime.now().isBefore(firstDate) ? firstDate : DateTime.now(),
+      firstDate: firstDate,
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.light().copyWith(
+              primary: ColorExtensions.orangeMenu,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedDate != null) {
+      setState(() {
+        selectedDate = pickedDate;
+        dateController.text = DateFormat('dd/MM/yyyy').format(selectedDate!);
+      });
+    }
+  }
+
+  void _updateProductEvent(BuildContext context) async {
+    setState(() {
+      _isUpdating = true;
+    });
+    await widget.onUpdate(
+      widget.firebaseId,
+      nameController.text,
+      codeController.text,
+      selectedDate!,
+      context,
+    );
+    setState(() {
+      _isUpdating = false;
+    });
+    Fluttertoast.showToast(
+      msg: '¡Elemento actualizado correctamente!',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.grey[700],
+      textColor: Colors.white,
+    );
+    widget.onClose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Map arguments = ModalRoute.of(context)!.settings.arguments as Map;
-
-    nameController.text = arguments['data-firebase']['name'];
-    codeController.text = arguments['data-firebase']['code'];
-    firebaseId = arguments['data-firebase']['firebaseId'];
-
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Update Product'),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
+    return AlertDialog(
+      backgroundColor: ColorExtensions.dark,
+      content: Container(
+        width: MediaQuery.of(context).size.width * 0.95,
+        child: SingleChildScrollView(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  hintText: 'Igresar nombre',
+              Container(
+                margin: const EdgeInsets.only(bottom: 10.0),
+                decoration: BoxDecoration(
+                  color: ColorExtensions.input,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: TextField(
+                  controller: nameController,
+                  style: TextStyle(color: ColorExtensions.inputText),
+                  decoration: const InputDecoration(
+                    hintText: 'Ingresar nombre',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(10.0),
+                  ),
                 ),
               ),
-              TextField(
-                controller: codeController,
-                decoration: const InputDecoration(
-                  hintText: 'Ingresar código',
+              Container(
+                margin: const EdgeInsets.only(bottom: 10.0),
+                decoration: BoxDecoration(
+                  color: ColorExtensions.input,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: TextField(
+                  controller: codeController,
+                  style: TextStyle(color: ColorExtensions.inputText),
+                  decoration: const InputDecoration(
+                    hintText: 'Ingresar código',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(10.0),
+                  ),
                 ),
               ),
-              const SizedBox(
-                  height: 20.0), // Espacio vertical para separar los widgets
-
-              // Mostrar el ElevatedButton o el CircularProgressIndicator según el estado
-              isUpdating
-                  ? const CircularProgressIndicator() // Spinner mientras se actualiza el producto
-                  : ElevatedButton(
-                      onPressed: () async {
-                        setState(() {
-                          isUpdating =
-                              true; // Establecer isUpdating en true antes de comenzar la actualización
-                        });
-                        await updateProductEvent(firebaseId,
-                            nameController.text, codeController.text, context);
-                        setState(() {
-                          isUpdating =
-                              false; // Establecer isUpdating en false una vez completada la actualización
-                        });
-                      },
-                      child: const Text('Actualizar'),
+              InkWell(
+                onTap: () => _selectDate(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: ColorExtensions.input,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: IgnorePointer(
+                    child: TextField(
+                      controller: dateController,
+                      style: TextStyle(color: ColorExtensions.inputText),
+                      decoration: InputDecoration(
+                        hintText: 'Fecha seleccionada',
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 10.0),
+                        suffixIcon: Icon(
+                          Icons.calendar_today,
+                          color: ColorExtensions.orangeMenu,
+                        ),
+                      ),
+                      textAlignVertical: TextAlignVertical.center,
                     ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isUpdating
+                          ? null
+                          : () {
+                              widget.onClose();
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorExtensions.input,
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isUpdating
+                          ? null
+                          : () {
+                              _updateProductEvent(context);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorExtensions.orangeMenu,
+                      ),
+                      child: Text(
+                        'Actualizar',
+                        style: TextStyle(color: ColorExtensions.dark),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
-}
-
-Future<void> updateProductEvent(
-    String firebaseId, String name, String code, BuildContext context) async {
-  Product newProduct = Product(
-    name: name,
-    code: code,
-    expirationDate: DateTime.now(),
-  );
-
-  await updateProduct(firebaseId, newProduct).then((_) {
-    Navigator.pop(context);
-  });
 }

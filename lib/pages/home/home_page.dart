@@ -52,3 +52,13 @@ class HomeState extends State<Home> {
     );
   }
 }
+
+// Center(
+      //   child: ElevatedButton(
+      //     onPressed: (){
+      //       print("notification");
+      //       mostrarNotificacion();
+      //     },
+      //     child: const Text("Mostrar Notificacion"),
+      //     )
+      // )

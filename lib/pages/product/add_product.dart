@@ -69,8 +69,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 child: TextField(
                   controller: nameController,
                   style: TextStyle(
-                      color: ColorExtensions
-                          .inputText), // Cambia el color del texto en el campo de entrada
+                      color: ColorExtensions.inputText),
                   decoration: const InputDecoration(
                     hintText: 'Ingresar nombre',
                     border: InputBorder.none,
@@ -87,8 +86,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 child: TextField(
                   controller: codeController,
                   style: TextStyle(
-                      color: ColorExtensions
-                          .inputText), // Cambia el color del texto en el campo de entrada
+                      color: ColorExtensions.inputText),
                   decoration: const InputDecoration(
                     hintText: 'Ingresar código',
                     border: InputBorder.none,
