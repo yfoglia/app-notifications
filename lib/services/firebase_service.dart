@@ -28,7 +28,7 @@ Future<List> getProduct() async {
 Stream<List<Map<String, dynamic>>> streamProduct() {
   return collectionReferenceData.snapshots().map((snapshot) {
     List<Map<String, dynamic>> products = [];
-    snapshot.docs.forEach((doc) {
+    for (var doc in snapshot.docs) {
       final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       final element = {
         "name": data['name'],
@@ -37,7 +37,7 @@ Stream<List<Map<String, dynamic>>> streamProduct() {
         "firebaseId": doc.id,
       };
       products.add(element);
-    });
+    }
     return products;
   });
 }

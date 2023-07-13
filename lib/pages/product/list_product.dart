@@ -114,7 +114,7 @@ class _ListProductPageState extends State<ListProductPage> {
             ),
           );
         } else if (snapshot.hasError) {
-          return Center(
+          return const Center(
             child: Text('Error al obtener los productos'),
           );
         } else {
