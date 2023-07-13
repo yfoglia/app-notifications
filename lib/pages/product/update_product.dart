@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:flutter_notifications/colors/color_extensions.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,14 +12,14 @@ class ModalUpdateWidget extends StatefulWidget {
   final Function onClose;
 
   const ModalUpdateWidget({
-    super.key,
+    Key? key,
     required this.firebaseId,
     required this.initialName,
     required this.initialCode,
     required this.initialDate,
     required this.onUpdate,
     required this.onClose,
-  });
+  }) : super(key: key);
 
   @override
   _ModalUpdateWidgetState createState() => _ModalUpdateWidgetState();
@@ -34,21 +32,23 @@ class _ModalUpdateWidgetState extends State<ModalUpdateWidget> {
   DateTime? selectedDate;
   bool _isUpdating = false;
   DateTime firstDate = DateTime.now();
-  
+
   @override
   void initState() {
     super.initState();
     nameController.text = widget.initialName;
     codeController.text = widget.initialCode;
-    dateController.text = DateFormat('dd/MM/yyyy').format(widget.initialDate);
+    dateController.text =
+        DateFormat('dd/MM/yyyy').format(widget.initialDate);
     selectedDate = widget.initialDate;
   }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate:
-          DateTime.now().isBefore(firstDate) ? firstDate : DateTime.now(),
+      initialDate: DateTime.now().isBefore(firstDate)
+          ? firstDate
+          : DateTime.now(),
       firstDate: firstDate,
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
@@ -74,24 +74,38 @@ class _ModalUpdateWidgetState extends State<ModalUpdateWidget> {
     setState(() {
       _isUpdating = true;
     });
-    await widget.onUpdate(
-      widget.firebaseId,
-      nameController.text,
-      codeController.text,
-      selectedDate!,
-      context,
-    );
-    setState(() {
-      _isUpdating = false;
-    });
-    Fluttertoast.showToast(
-      msg: '¡Elemento actualizado correctamente!',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.grey[700],
-      textColor: Colors.white,
-    );
-    widget.onClose();
+
+    try {
+      await widget.onUpdate(
+        widget.firebaseId,
+        nameController.text,
+        codeController.text,
+        selectedDate!,
+        context,
+      );
+
+      Fluttertoast.showToast(
+        msg: '¡Elemento actualizado correctamente!',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.grey[700],
+        textColor: Colors.white,
+      );
+
+      widget.onClose();
+    } catch (error) {
+      Fluttertoast.showToast(
+        msg: 'Error al actualizar el elemento',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } finally {
+      setState(() {
+        _isUpdating = false;
+      });
+    }
   }
 
   @override
@@ -188,16 +202,24 @@ class _ModalUpdateWidgetState extends State<ModalUpdateWidget> {
                               _updateProductEvent(context);
                             },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorExtensions.orangeMenu,
+                        backgroundColor: _isUpdating
+                            ? Colors.black
+                            : ColorExtensions.orangeMenu,
                       ),
-                      child: Text(
-                        'Actualizar',
-                        style: TextStyle(color: ColorExtensions.dark),
-                      ),
+                      child: const Text('Actualizar'),
                     ),
                   ),
                 ],
               ),
+              if (_isUpdating)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: LinearProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        ColorExtensions.orangeMenu),
+                    backgroundColor: Colors.grey[300],
+                  ),
+                ),
             ],
           ),
         ),
