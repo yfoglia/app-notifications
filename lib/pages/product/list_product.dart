@@ -17,7 +17,13 @@ class _ListProductPageState extends State<ListProductPage> {
   bool _isModalDeleteVisible = false;
   bool _isModalUpdateVisible = false;
   int _selectedProductIndex = -1;
-  List<Map<String, dynamic>> _productData = [];
+  late List<Map<String, dynamic>> _productData;
+
+  @override
+  void initState() {
+    super.initState();
+    _productData = [];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +42,11 @@ class _ListProductPageState extends State<ListProductPage> {
   }
 
   Widget _buildContent() {
-    return FutureBuilder(
-      future: getProduct(),
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: streamProduct(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          _productData = List<Map<String, dynamic>>.from(snapshot.data ?? []);
+          _productData = snapshot.data!;
           return Padding(
             padding: const EdgeInsets.all(10.0),
             child: ListView.builder(
@@ -107,11 +113,17 @@ class _ListProductPageState extends State<ListProductPage> {
               },
             ),
           );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error al obtener los productos'),
+          );
         } else {
           return Center(
             child: CircularProgressIndicator(
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(ColorExtensions.orangeMenu)),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                ColorExtensions.orangeMenu,
+              ),
+            ),
           );
         }
       },

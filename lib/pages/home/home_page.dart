@@ -14,6 +14,12 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   late int _page = 0;
 
+  void changePage(int index) {
+    setState(() {
+      _page = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +27,7 @@ class HomeState extends State<Home> {
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: ColorExtensions.dark,
         color: ColorExtensions.orangeMenu,
-		animationDuration: const Duration(milliseconds: 400),
+        animationDuration: const Duration(milliseconds: 400),
         items: [
           Icon(Icons.wallet, size: 30, color: ColorExtensions.dark),
           Icon(Icons.add, size: 30, color: ColorExtensions.dark),
@@ -39,8 +45,8 @@ class HomeState extends State<Home> {
           const Center(
             child: ListProductPage(),
           ),
-          const Center(
-            child: AddProductPage(),
+          Center(
+            child: AddProductPage(homeState: this),
           ),
           Container(
             color: ColorExtensions.dark,

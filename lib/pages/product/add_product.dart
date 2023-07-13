@@ -6,9 +6,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart'; // Importar el paquete intl para formatear la fecha
 
 import '../../models/product_model.dart';
+import 'list_product.dart';
 
 class AddProductPage extends StatefulWidget {
-  const AddProductPage({Key? key}) : super(key: key);
+  final HomeState homeState;
+
+  const AddProductPage({Key? key, required this.homeState}) : super(key: key);
 
   @override
   State<AddProductPage> createState() => _AddProductPageState();
@@ -130,11 +133,15 @@ class _AddProductPageState extends State<AddProductPage> {
                 ignoring: isLoading,
                 child: ElevatedButton(
                   onPressed: () async {
-                    await addProductEvent(nameController.text, codeController.text, selectedDate, context);
+                    await addProductEvent(nameController.text,
+                        codeController.text, selectedDate, context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isLoading ? Colors.grey : ColorExtensions.orangeMenu,
-                    textStyle: TextStyle(color: isLoading ? Colors.black54 : ColorExtensions.dark),
+                    backgroundColor:
+                        isLoading ? Colors.grey : ColorExtensions.orangeMenu,
+                    textStyle: TextStyle(
+                        color:
+                            isLoading ? Colors.black54 : ColorExtensions.dark),
                   ),
                   child: const Text('Agregar'),
                 ),
@@ -144,7 +151,8 @@ class _AddProductPageState extends State<AddProductPage> {
                   padding: const EdgeInsets.all(18.0),
                   child: Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(ColorExtensions.orangeMenu),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          ColorExtensions.orangeMenu),
                     ),
                   ),
                 )
@@ -155,14 +163,16 @@ class _AddProductPageState extends State<AddProductPage> {
     );
   }
 
-  Future<void> addProductEvent(String name, String code, DateTime? selectedDate, BuildContext context) async {
+  Future<void> addProductEvent(String name, String code, DateTime? selectedDate,
+      BuildContext context) async {
     if (selectedDate == null) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Fecha no seleccionada'),
-            content: const Text('Por favor, seleccione una fecha antes de guardar.'),
+            content:
+                const Text('Por favor, seleccione una fecha antes de guardar.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('Cerrar'),
@@ -197,15 +207,14 @@ class _AddProductPageState extends State<AddProductPage> {
         textColor: Colors.white,
       );
 
+      widget.homeState.changePage(0);
+
       setState(() {
         isLoading = false;
+        nameController = TextEditingController(text: "");
+        codeController = TextEditingController(text: "");
+        dateController = TextEditingController();
       });
-
-      // Redirigir al usuario al Home
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const Home()),
-        (Route<dynamic> route) => false,
-      );
     });
   }
 }
