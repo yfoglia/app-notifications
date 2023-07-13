@@ -4,9 +4,7 @@ import 'package:flutter_notifications/pages/home/home_page.dart';
 import 'package:flutter_notifications/services/firebase_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart'; // Importar el paquete intl para formatear la fecha
-
 import '../../models/product_model.dart';
-import 'list_product.dart';
 
 class AddProductPage extends StatefulWidget {
   final HomeState homeState;
