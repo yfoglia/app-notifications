@@ -144,7 +144,9 @@ class _ListProductPageState extends State<ListProductPage> {
           });
           deleteProduct(
             _productData[_selectedProductIndex]['firebaseId'],
-          );
+          ).then((_){
+
+          });
         },
       );
     } else {

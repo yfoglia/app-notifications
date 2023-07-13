@@ -6,13 +6,13 @@ class ModalDeleteWidget extends StatefulWidget {
   final Function onCancel;
   final Function onConfirm;
 
-  const ModalDeleteWidget({super.key, 
+  const ModalDeleteWidget({
+    Key? key,
     required this.onCancel,
     required this.onConfirm,
-  });
+  }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _ModalDeleteWidgetState createState() => _ModalDeleteWidgetState();
 }
 
@@ -23,17 +23,36 @@ class _ModalDeleteWidgetState extends State<ModalDeleteWidget> {
     setState(() {
       _isDeleting = true;
     });
-    await widget.onConfirm();
-    setState(() {
-      _isDeleting = false;
-    });
-    Fluttertoast.showToast(
-      msg: '¡Elemento eliminado correctamente!',
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.grey[700],
-      textColor: Colors.white,
-    );
+
+    try {
+      await widget.onConfirm();
+
+      Fluttertoast.showToast(
+        msg: '¡Elemento eliminado correctamente!',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.grey[700],
+        textColor: Colors.white,
+      );
+
+      // Cerrar el modal y volver a la lista
+      widget.onCancel();
+    } catch (error) {
+      Fluttertoast.showToast(
+        msg: 'Error al eliminar el elemento',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+
+      // Cerrar el modal
+      widget.onCancel();
+    } finally {
+      setState(() {
+        _isDeleting = false;
+      });
+    }
   }
 
   @override
@@ -97,20 +116,25 @@ class _ModalDeleteWidgetState extends State<ModalDeleteWidget> {
                             child: ElevatedButton(
                               onPressed: _isDeleting ? null : _deleteProduct,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: ColorExtensions.orangeMenu,
+                                backgroundColor: _isDeleting
+                                    ? ColorExtensions.input
+                                    : ColorExtensions.orangeMenu,
                               ),
-                              child: _isDeleting
-                                  ? CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          ColorExtensions.orangeMenu),
-                                    )
-                                  : const Text('Borrar'),
+                              child: const Text('Borrar'),
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
+                  if (_isDeleting)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: LinearProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(ColorExtensions.orangeMenu),
+                        backgroundColor: ColorExtensions.input,
+                      ),
+                    ),
                 ],
               ),
             ),

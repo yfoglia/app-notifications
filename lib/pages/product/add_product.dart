@@ -136,10 +136,10 @@ class _AddProductPageState extends State<AddProductPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
-                        isLoading ? Colors.grey : ColorExtensions.orangeMenu,
+                        isLoading ? ColorExtensions.input : ColorExtensions.orangeMenu,
                     textStyle: TextStyle(
                         color:
-                            isLoading ? Colors.black54 : ColorExtensions.dark),
+                            isLoading ? ColorExtensions.orangeMenu  : ColorExtensions.dark),
                   ),
                   child: const Text('Agregar'),
                 ),
