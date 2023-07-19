@@ -19,7 +19,7 @@ Future<void> initNotifications() async {
 
 }
 
-Future<void> mostrarNotificacion() async {
+Future<void> showNotification(String message) async {
   const AndroidNotificationDetails androidNotificationDetails = 
     AndroidNotificationDetails('channelId', 'channelName');
   
@@ -27,6 +27,6 @@ Future<void> mostrarNotificacion() async {
     android:  androidNotificationDetails,
   );
 
-  await flutterLocalNotificationsPlugin.show(1, 'title', 'body', notificationDetails);
+  await flutterLocalNotificationsPlugin.show(1, 'Expiracion de Producto', message, notificationDetails);
   
 }

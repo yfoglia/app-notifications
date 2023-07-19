@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../colors/color_extensions.dart';
 import '../../models/product_model.dart';
 import '../../services/firebase_service.dart';
+import '../../services/notifications_services.dart';
 import 'delete_product.dart';
 
 class ListProductPage extends StatefulWidget {
@@ -23,6 +24,27 @@ class _ListProductPageState extends State<ListProductPage> {
   void initState() {
     super.initState();
     _productData = [];
+
+    // Ejecutar el proceso de verificación y notificación automáticamente
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _checkExpirationDatesAndShowNotifications();
+    });
+  }
+
+  void _checkExpirationDatesAndShowNotifications() {
+    for (int i = 0; i < _productData.length; i++) {
+      DateTime expirationDate =
+          DateTime.parse(_productData[i]['expirationDate']);
+      DateTime currentDate = DateTime.now();
+      Duration difference = expirationDate.difference(currentDate);
+      int daysLeft = difference.inDays;
+
+      if (daysLeft == 30 || daysLeft == 15 || daysLeft == 5) {
+        String notificationMessage =
+            'El producto se está por vencer en $daysLeft días.';
+        showNotification(notificationMessage);
+      }
+    }
   }
 
   @override
@@ -144,9 +166,7 @@ class _ListProductPageState extends State<ListProductPage> {
           });
           deleteProduct(
             _productData[_selectedProductIndex]['firebaseId'],
-          ).then((_){
-
-          });
+          ).then((_) {});
         },
       );
     } else {
